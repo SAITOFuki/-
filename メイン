@@ -1,0 +1,32 @@
+from openpyxl import Workbook
+import os
+import re
+
+wb = Workbook()
+ws = wb.active
+ws.title = "Experiment"
+weekday_rows = {"月": 1, "火": 2, "水": 3, "木": 4, "金": 5, "土": 6, "日": 7}
+
+print("Excelに貼り付けるデータを入力してください。入力を終えたら空行を入力します。")
+row_index = 1
+while True:
+	line = input()
+	if not line:
+		break
+	for column_index, value in enumerate(line.split("\t"), start=1):
+		# 曜日の直後に数字が続く場合だけ、曜日に対応する行へ書き込む。
+		match = re.search(r"[月火水木金土日](\d+)", value)
+		if match:
+			weekday = match.group(0)[0]
+			output_row = weekday_rows[weekday]
+			output_column = int(match.group(1))
+			ws.cell(row=output_column, column=output_row, value=value)
+
+	row_index += 1
+
+
+output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "result.xlsx")
+wb.save(output_path)
+
+print("Excelファイルを作成しました。")
+print(f"保存先: {output_path}")
